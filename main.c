@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "numbers.h"
 
-int clock[5][55] = {0};
+int clock[5][51] = {0};
 
 void setnumber(int number, int start) {
     for (int i = 0; i < 5; i++) {
@@ -17,25 +18,44 @@ void settime(int hours, int minutes, int seconds) {
     setnumber(hours/10, 0);
     setnumber(hours%10, 7);
 
-    setnumber(minutes/10, 20);
-    setnumber(minutes%10, 27);
+    setnumber(minutes/10, 19);
+    setnumber(minutes%10, 26);
 
-    setnumber(seconds/10, 40);
-    setnumber(seconds%10, 47);
+    setnumber(seconds/10, 38);
+    setnumber(seconds%10, 45);
 }
 
 void print_clock() {
+    struct winsize w;
+    ioctl(0, TIOCGWINSZ, &w);
+
     printf("\033c");
     printf("\033[H");
+
+    printf("\033[0m");
+    for (int i = 0; i < ((w.ws_row - 5) / 2) + 1; ++i) {
+        for (int j = 0; j < w.ws_col; ++j) {
+            if (i+1 == ((w.ws_row - 5) / 2) + 1) {
+                break;
+            }
+            printf(" ");
+        }
+    }
+
     for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 55; ++j) {
+        printf("\033[0m");
+        for (int k = 0; k < (w.ws_col - 51) / 2 + 1; ++k) {
+            printf(" ");
+        }
+
+        for (int j = 0; j < 51; ++j) {
             if (clock[i][j]) {
                 printf("\033[42m ");
             } else {
                 printf("\033[0m ");
             }
         }
-        printf("\n");
+        printf("\033[0m\n");
     }
 }
 
@@ -49,10 +69,10 @@ void loop() {
     clock[3][15] = 1;
     clock[3][16] = 1;
 
+    clock[1][34] = 1;
     clock[1][35] = 1;
-    clock[1][36] = 1;
+    clock[3][34] = 1;
     clock[3][35] = 1;
-    clock[3][36] = 1;
 
     while (1) {
         if (seconds > 59) {
