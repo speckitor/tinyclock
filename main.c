@@ -1,15 +1,18 @@
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <time.h>
 
 #include "numbers.h"
 
-int clock[5][51] = {0};
+int clock_mtx[5][51] = {0};
 
 void setnumber(int number, int start) {
     for (int i = 0; i < 5; i++) {
         for (int j = start; j < start + 6; j++) {
-            clock[i][j] = numbers[number][i][j - start];
+            clock_mtx[i][j] = numbers[number][i][j - start];
         }
     }
 }
@@ -29,10 +32,10 @@ void print_clock() {
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
 
-    printf("\033c");
-    printf("\033[H");
+    printf("\ec");
+    printf("\e[H");
 
-    printf("\033[0m");
+    printf("\e[0m");
     for (int i = 0; i < ((w.ws_row - 5) / 2) + 1; ++i) {
         for (int j = 0; j < w.ws_col; ++j) {
             if (i+1 == ((w.ws_row - 5) / 2) + 1) {
@@ -43,36 +46,23 @@ void print_clock() {
     }
 
     for (int i = 0; i < 5; ++i) {
-        printf("\033[0m");
+        printf("\e[0m");
         for (int k = 0; k < (w.ws_col - 51) / 2 + 1; ++k) {
             printf(" ");
         }
 
         for (int j = 0; j < 51; ++j) {
-            if (clock[i][j]) {
-                printf("\033[42m ");
+            if (clock_mtx[i][j]) {
+                printf("\e[42m ");
             } else {
-                printf("\033[0m ");
+                printf("\e[0m ");
             }
         }
-        printf("\033[0m\n");
+        printf("\e[0m\n");
     }
 }
 
-void loop() {
-    int hours = 0;
-    int minutes = 0;
-    int seconds = 0;
-
-    clock[1][15] = 1;
-    clock[1][16] = 1;
-    clock[3][15] = 1;
-    clock[3][16] = 1;
-
-    clock[1][34] = 1;
-    clock[1][35] = 1;
-    clock[3][34] = 1;
-    clock[3][35] = 1;
+void loop(int hours, int minutes, int seconds) {
 
     while (1) {
         if (seconds > 59) {
@@ -98,8 +88,47 @@ void loop() {
     }
 }
 
-int main() {
-    loop();
+int main(int argc, char **argv) {
+    int hours;
+    int minutes;
+    int seconds;
+
+    bool stopwatch = false;
+
+    clock_mtx[1][15] = 1;
+    clock_mtx[1][16] = 1;
+    clock_mtx[3][15] = 1;
+    clock_mtx[3][16] = 1;
+
+    clock_mtx[1][34] = 1;
+    clock_mtx[1][35] = 1;
+    clock_mtx[3][34] = 1;
+    clock_mtx[3][35] = 1;
+
+    for (int i = 1; i < argc; ++i) {
+        if ((strcmp(argv[i], "-s") == 0) || (strcmp(argv[i], "--stopwatch") == 0)) {
+            stopwatch = true;
+        }
+    }
+    
+    if (stopwatch) {
+        hours = 0;
+        minutes = 0;
+        seconds = 0;
+
+    } else {
+        time_t rawtime;
+        struct tm *timeinfo;
+
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
+
+        hours = timeinfo->tm_hour;
+        minutes = timeinfo->tm_min;
+        seconds = timeinfo->tm_sec;
+    }
+
+    loop(hours, minutes, seconds);
 
     return 0;
 }
