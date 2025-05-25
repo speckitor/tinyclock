@@ -62,8 +62,7 @@ void print_clock() {
     }
 }
 
-void loop(int hours, int minutes, int seconds) {
-
+void loop_forward(int hours, int minutes, int seconds) {
     while (1) {
         if (seconds > 59) {
             minutes++;
@@ -88,12 +87,37 @@ void loop(int hours, int minutes, int seconds) {
     }
 }
 
+void loop_back(int hours, int minutes, int seconds) {
+    while (1) {
+        if (seconds < 0) {
+            minutes--;
+            seconds = 59;
+        }
+
+        if (minutes < 0) {
+            hours--;
+            minutes = 59;
+        }
+
+        if (hours < 0) {
+            break;
+        }
+
+        settime(hours, minutes, seconds);
+
+        print_clock();
+
+        sleep(1);
+        seconds--;
+    }
+}
 int main(int argc, char **argv) {
     int hours;
     int minutes;
     int seconds;
 
     bool stopwatch = false;
+    bool timer = false;
 
     clock_mtx[1][15] = 1;
     clock_mtx[1][16] = 1;
@@ -108,14 +132,33 @@ int main(int argc, char **argv) {
     for (int i = 1; i < argc; ++i) {
         if ((strcmp(argv[i], "-s") == 0) || (strcmp(argv[i], "--stopwatch") == 0)) {
             stopwatch = true;
+        } else if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--timer") == 0)) {
+            timer = true;
+        } else if ((strcmp(argv[i], "h") == 0) && i + 1 < argc) {
+            i++;
+            sscanf(argv[i], "%d", &hours);
+        } else if ((strcmp(argv[i], "m") == 0) && i + 1 < argc) {
+            i++;
+            sscanf(argv[i], "%d", &minutes);
+        } else if ((strcmp(argv[i], "s") == 0) && i + 1 < argc) {
+            i++;
+            sscanf(argv[i], "%d", &seconds);
         }
     }
-    
+
+    if (timer && stopwatch) {
+        fprintf(stdout, "Cannot use timer and stopwatch at the same time.");
+        return 1;
+    }
+
     if (stopwatch) {
         hours = 0;
         minutes = 0;
         seconds = 0;
 
+        loop_forward(hours, minutes, seconds);
+    } else if (timer) {
+        loop_back(hours, minutes, seconds);
     } else {
         time_t rawtime;
         struct tm *timeinfo;
@@ -126,9 +169,10 @@ int main(int argc, char **argv) {
         hours = timeinfo->tm_hour;
         minutes = timeinfo->tm_min;
         seconds = timeinfo->tm_sec;
+
+        loop_forward(hours, minutes, seconds);
     }
 
-    loop(hours, minutes, seconds);
 
     return 0;
 }
