@@ -112,9 +112,9 @@ void loop_back(int hours, int minutes, int seconds) {
     }
 }
 int main(int argc, char **argv) {
-    int hours;
-    int minutes;
-    int seconds;
+    int hours = 0;
+    int minutes = 0;
+    int seconds = 0;
 
     bool stopwatch = false;
     bool timer = false;
@@ -134,15 +134,24 @@ int main(int argc, char **argv) {
             stopwatch = true;
         } else if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--timer") == 0)) {
             timer = true;
-        } else if ((strcmp(argv[i], "h") == 0) && i + 1 < argc) {
+        } else if ((strcmp(argv[i], "h") == 0) && i + 1 < argc && timer) {
             i++;
             sscanf(argv[i], "%d", &hours);
-        } else if ((strcmp(argv[i], "m") == 0) && i + 1 < argc) {
+            if (hours > 99) {
+                hours = 99;
+            }
+        } else if ((strcmp(argv[i], "m") == 0) && i + 1 < argc && timer) {
             i++;
             sscanf(argv[i], "%d", &minutes);
-        } else if ((strcmp(argv[i], "s") == 0) && i + 1 < argc) {
+            if (minutes > 59) {
+                minutes = 59;
+            }
+        } else if ((strcmp(argv[i], "s") == 0) && i + 1 < argc && timer) {
             i++;
             sscanf(argv[i], "%d", &seconds);
+            if (seconds > 59) {
+                seconds = 59;
+            }
         }
     }
 
@@ -152,10 +161,6 @@ int main(int argc, char **argv) {
     }
 
     if (stopwatch) {
-        hours = 0;
-        minutes = 0;
-        seconds = 0;
-
         loop_forward(hours, minutes, seconds);
     } else if (timer) {
         loop_back(hours, minutes, seconds);
@@ -172,7 +177,6 @@ int main(int argc, char **argv) {
 
         loop_forward(hours, minutes, seconds);
     }
-
 
     return 0;
 }
