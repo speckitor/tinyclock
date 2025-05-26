@@ -134,23 +134,29 @@ int main(int argc, char **argv) {
             stopwatch = true;
         } else if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--timer") == 0)) {
             timer = true;
-        } else if ((strcmp(argv[i], "h") == 0) && i + 1 < argc && timer) {
+        } else if ((strcmp(argv[i], "h") == 0) && i + 1 < argc) {
             i++;
             sscanf(argv[i], "%d", &hours);
             if (hours > 99) {
                 hours = 99;
+            } else if (hours < 0) {
+                hours = 0;
             }
-        } else if ((strcmp(argv[i], "m") == 0) && i + 1 < argc && timer) {
+        } else if ((strcmp(argv[i], "m") == 0) && i + 1 < argc) {
             i++;
             sscanf(argv[i], "%d", &minutes);
             if (minutes > 59) {
                 minutes = 59;
+            } else if (minutes < 0) {
+                minutes = 0;
             }
-        } else if ((strcmp(argv[i], "s") == 0) && i + 1 < argc && timer) {
+        } else if ((strcmp(argv[i], "s") == 0) && i + 1 < argc) {
             i++;
             sscanf(argv[i], "%d", &seconds);
             if (seconds > 59) {
                 seconds = 59;
+            } else if (seconds < 0) {
+                seconds = 0;
             }
         }
     }
