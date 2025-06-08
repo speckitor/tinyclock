@@ -1,6 +1,6 @@
 CC=gcc
 
-OUT = ctime
+OUT = tinyclock
 
 $(OUT): main.c
 	$(CC) -o $(OUT) main.c
