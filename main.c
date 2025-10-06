@@ -7,12 +7,32 @@
 
 #include "numbers.h"
 
+typedef struct {
+    const char *name;
+    int code;
+} color_t;
+
+static const color_t colors[8] = {
+    {"black", 40},
+    {"red", 41},
+    {"green", 42},
+    {"yellow", 43},
+    {"blue", 44},
+    {"magenta", 45},
+    {"cyan", 46},
+    {"white", 47},
+};
+
 int clock_mtx[5][51] = {0};
+int clock_color = 42;
 
 static void print_help() {
     printf("tinyclock - small terminal clock\n\n"
            "Options:\n"
            "\t-h, --help         print this message\n"
+           "\t-c, --color        set clock color:\n"
+           "\t                       black, red, green, yellow, blue, magenta, cyan, white\n"
+           "\t                       default color is green\n"
            "\t-s, --stopwatch    use stopwatch mode, it will count from 0 until specified time\n"
            "\t-t, --timer        use timer mode, it will count from specified time to 0\n\n"
            "Time input:\n"
@@ -67,7 +87,7 @@ static void print_clock() {
 
         for (int j = 0; j < 51; ++j) {
             if (clock_mtx[i][j]) {
-                printf("\e[42m ");
+                printf("\e[%dm ", clock_color);
             } else {
                 printf("\e[0m ");
             }
@@ -175,6 +195,13 @@ int main(int argc, char **argv) {
         if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
             print_help();
             return 0;
+        } else if ((strcmp(argv[i], "-c") == 0) || (strcmp(argv[i], "--color") == 0) && i + 1 < argc) {
+            i++;
+            for (int j = 0; j < sizeof(colors)/sizeof(colors[0]); ++j) {
+                if (strcmp(argv[i], colors[j].name) == 0) {
+                    clock_color = colors[j].code;
+                }
+            }
         } else if ((strcmp(argv[i], "-s") == 0) || (strcmp(argv[i], "--stopwatch") == 0)) {
             stopwatch = true;
         } else if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--timer") == 0)) {
