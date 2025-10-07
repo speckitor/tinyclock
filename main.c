@@ -26,7 +26,8 @@ static const color_t colors[8] = {
 int clock_mtx[5][51] = {0};
 int clock_color = 42;
 
-static void print_help() {
+static void print_help()
+{
     printf("tinyclock - small terminal clock\n\n"
            "Options:\n"
            "\t-h, --help         print this message\n"
@@ -43,7 +44,8 @@ static void print_help() {
     );
 }
 
-static void setnumber(int number, int start) {
+static void setnumber(int number, int start)
+{
     for (int i = 0; i < 5; i++) {
         for (int j = start; j < start + 6; j++) {
             clock_mtx[i][j] = numbers[number][i][j - start];
@@ -51,7 +53,8 @@ static void setnumber(int number, int start) {
     }
 }
 
-static void settime(int hours, int minutes, int seconds) {
+static void settime(int hours, int minutes, int seconds)
+{
     setnumber(hours/10, 0);
     setnumber(hours%10, 7);
 
@@ -62,7 +65,8 @@ static void settime(int hours, int minutes, int seconds) {
     setnumber(seconds%10, 45);
 }
 
-static void print_clock() {
+static void print_clock()
+{
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
 
@@ -96,7 +100,8 @@ static void print_clock() {
     }
 }
 
-static void clock_mode(int hours, int minutes, int seconds) {
+static void clock_mode(int hours, int minutes, int seconds)
+{
     while (true) {
         if (seconds > 59) {
             minutes++;
@@ -121,7 +126,8 @@ static void clock_mode(int hours, int minutes, int seconds) {
     }
 }
 
-static void timer_mode(int hours, int minutes, int seconds) {
+static void timer_mode(int hours, int minutes, int seconds)
+{
     while (true) {
         if (seconds < 0) {
             minutes--;
@@ -146,7 +152,8 @@ static void timer_mode(int hours, int minutes, int seconds) {
     }
 }
 
-static void stopwatch_mode(int h, int m, int s) {
+static void stopwatch_mode(int h, int m, int s)
+{
     int hours = 0;
     int minutes = 0;
     int seconds = 0;
@@ -173,7 +180,8 @@ static void stopwatch_mode(int h, int m, int s) {
         seconds++;
     }
 }
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     int hours = 0;
     int minutes = 0;
     int seconds = 0;
